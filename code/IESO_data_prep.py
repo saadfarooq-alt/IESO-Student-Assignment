@@ -53,7 +53,16 @@ def load_intertie(path: str) -> pd.DataFrame:
     return df[keep]
 
 
+
+
 if __name__ == "__main__":
     intertie = load_intertie(INTERTIE_PATH)
+    demand = load_demand(DEMAND_PATH)
+    df = merge_datasets(intertie, demand)
+
+    summarize(df)
+
+    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
+    df.to_csv(OUTPUT_PATH, index=False)
 
     print(f"\nMerged dataset saved to: {OUTPUT_PATH}")
