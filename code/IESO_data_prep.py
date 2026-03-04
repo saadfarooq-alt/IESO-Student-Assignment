@@ -53,6 +53,22 @@ def load_intertie(path: str) -> pd.DataFrame:
     return df[keep]
 
 
+def load_demand(path: str) -> pd.DataFrame:
+    """
+    Load the Hourly Demand Report.
+    The file has 3 comment rows, then the column header row.
+    """
+    df = pd.read_csv(path, skiprows=3)
+
+    df = df.rename(columns={
+        "Ontario Demand": "Ontario_Demand",
+        "Market Demand":  "Market_Demand",
+    })
+
+    df["Date"] = pd.to_datetime(df["Date"])
+    df["Hour"] = df["Hour"].astype(int)
+
+    return df[["Date", "Hour", "Ontario_Demand", "Market_Demand"]]
 
 
 if __name__ == "__main__":
@@ -64,5 +80,5 @@ if __name__ == "__main__":
 
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
     df.to_csv(OUTPUT_PATH, index=False)
-
+    
     print(f"\nMerged dataset saved to: {OUTPUT_PATH}")
