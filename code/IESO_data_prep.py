@@ -71,6 +71,35 @@ def load_demand(path: str) -> pd.DataFrame:
     return df[["Date", "Hour", "Ontario_Demand", "Market_Demand"]]
 
 
+def merge_datasets(intertie: pd.DataFrame, demand: pd.DataFrame) -> pd.DataFrame:
+    """Merge intertie and demand on Date + Hour."""
+    df = pd.merge(intertie, demand, on=["Date", "Hour"], how="inner")
+    return df
+
+
+def summarize(df: pd.DataFrame) -> None:
+    """Print a quick sanity-check summary."""
+    print("=" * 50)
+    print("MERGED DATASET SUMMARY")
+    print("=" * 50)
+    print(f"Rows:       {len(df):,}")
+    print(f"Date range: {df['Date'].min().date()} → {df['Date'].max().date()}")
+    print(f"Nulls:      {df.isnull().sum().sum()}")
+    print()
+
+    total_imp = df["Total_Imp"].sum()
+    total_exp = df["Total_Exp"].sum()
+    net       = total_exp - total_imp
+    position  = "NET EXPORTER" if net > 0 else "NET IMPORTER"
+
+    print(f"Annual Imports:  {total_imp:>12,.0f} MWh")
+    print(f"Annual Exports:  {total_exp:>12,.0f} MWh")
+    print(f"Net Position:    {net:>12,.0f} MWh  ({position})")
+    print()
+    print(df[["Total_Imp", "Total_Exp", "Net_Export", "Ontario_Demand"]].describe().round(1))
+    print("=" * 50)
+
+
 if __name__ == "__main__":
     intertie = load_intertie(INTERTIE_PATH)
     demand = load_demand(DEMAND_PATH)
