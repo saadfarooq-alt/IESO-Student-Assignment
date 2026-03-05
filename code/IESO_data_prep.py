@@ -4,6 +4,9 @@ ieso_data_prep.py
 Loads, cleans, and merges the two IESO datasets:
   - datasets/raw/PUB_IntertieScheduleFlowYear_2025.csv
   - datasets/raw/PUB_Demand_2025.csv
+
+How to run:
+    python code/IESO_data_prep.py
 """
 
 import pandas as pd
@@ -68,14 +71,13 @@ def merge_datasets(intertie: pd.DataFrame, demand: pd.DataFrame) -> pd.DataFrame
 
 def summarize(df: pd.DataFrame) -> None:
     """
-    Print a quick sanity-check summary.
+    Print a summary of the data on an per hour basis.
     """
     print("=" * 50)
     print("MERGED DATASET SUMMARY")
     print("=" * 50)
     print(f"Rows: {len(df):,}")
     print(f"Date range: {df['Date'].min().date()} → {df['Date'].max().date()}")
-    print(f"Nulls: {df.isnull().sum().sum()}")
     print()
 
     total_imp = df["Total_Imp"].sum()
