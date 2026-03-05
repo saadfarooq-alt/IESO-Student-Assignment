@@ -4,7 +4,7 @@ Analysis of Ontario's electricity trading position using publicly available IESO
 
 ## Datasets
 
-Both datasets are sourced from the [IESO Public Reports](https://reports-public.ieso.ca/public/) directory and stored in `datasets/`.
+Both datasets are sourced from the [IESO Public Reports](https://reports-public.ieso.ca/public/) directory and stored in `datasets/raw`.
 
 | File | Description |
 |------|-------------|
