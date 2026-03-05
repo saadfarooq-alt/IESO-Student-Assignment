@@ -2,8 +2,8 @@
 ieso_data_prep.py
 -----------------
 Loads, cleans, and merges the two IESO datasets:
-  - datasets/PUB_IntertieScheduleFlowYear_2025.csv
-  - datasets/PUB_Demand_2025.csv
+  - datasets/raw/PUB_IntertieScheduleFlowYear_2025.csv
+  - datasets/raw/PUB_Demand_2025.csv
 
 Run from the repo root:
     python code/ieso_data_prep.py
@@ -16,16 +16,14 @@ import pandas as pd
 import os
 
 # ── Paths (relative to repo root) ──────────────────────────────────────────
-INTERTIE_PATH = "datasets/PUB_IntertieScheduleFlowYear_2025.csv"
-DEMAND_PATH   = "datasets/PUB_Demand_2025.csv"
-OUTPUT_PATH   = "datasets/merged_2025.csv"
+INTERTIE_PATH = "datasets/raw/PUB_IntertieScheduleFlowYear_2025.csv"
+DEMAND_PATH   = "datasets/raw/PUB_Demand_2025.csv"
+OUTPUT_PATH   = "datasets/processed/merged_2025.csv"
 
 
 def load_intertie(path: str) -> pd.DataFrame:
     """
     Load the Yearly Intertie Schedule and Flow Report.
-    The file has 3 comment rows, 1 region-name row, then the column header row.
-    The last 3 columns (Imp.14, Exp.14, Flow.14) represent Ontario totals.
     """
     df = pd.read_csv(path, skiprows=4)
 
@@ -37,12 +35,12 @@ def load_intertie(path: str) -> pd.DataFrame:
     })
 
     # Parse date and add time features
-    df["Date"]       = pd.to_datetime(df["Date"])
-    df["Hour"]       = df["Hour"].astype(int)
-    df["Month"]      = df["Date"].dt.month
+    df["Date"] = pd.to_datetime(df["Date"])
+    df["Hour"] = df["Hour"].astype(int)
+    df["Month"] = df["Date"].dt.month
     df["Month_Name"] = df["Date"].dt.strftime("%b")
-    df["Week"]       = df["Date"].dt.isocalendar().week.astype(int)
-    df["DayOfWeek"]  = df["Date"].dt.day_name()
+    df["Week"] = df["Date"].dt.isocalendar().week.astype(int)
+    df["DayOfWeek"] = df["Date"].dt.day_name()
 
     # Net export: positive = Ontario exporting, negative = Ontario importing
     df["Net_Export"] = df["Total_Exp"] - df["Total_Imp"]
@@ -56,7 +54,6 @@ def load_intertie(path: str) -> pd.DataFrame:
 def load_demand(path: str) -> pd.DataFrame:
     """
     Load the Hourly Demand Report.
-    The file has 3 comment rows, then the column header row.
     """
     df = pd.read_csv(path, skiprows=3)
 
@@ -72,29 +69,33 @@ def load_demand(path: str) -> pd.DataFrame:
 
 
 def merge_datasets(intertie: pd.DataFrame, demand: pd.DataFrame) -> pd.DataFrame:
-    """Merge intertie and demand on Date + Hour."""
+    """
+    Merge intertie and demand on Date + Hour.
+    """
     df = pd.merge(intertie, demand, on=["Date", "Hour"], how="inner")
     return df
 
 
 def summarize(df: pd.DataFrame) -> None:
-    """Print a quick sanity-check summary."""
+    """
+    Print a quick sanity-check summary.
+    """
     print("=" * 50)
     print("MERGED DATASET SUMMARY")
     print("=" * 50)
-    print(f"Rows:       {len(df):,}")
+    print(f"Rows: {len(df):,}")
     print(f"Date range: {df['Date'].min().date()} → {df['Date'].max().date()}")
-    print(f"Nulls:      {df.isnull().sum().sum()}")
+    print(f"Nulls: {df.isnull().sum().sum()}")
     print()
 
     total_imp = df["Total_Imp"].sum()
     total_exp = df["Total_Exp"].sum()
-    net       = total_exp - total_imp
-    position  = "NET EXPORTER" if net > 0 else "NET IMPORTER"
+    net = total_exp - total_imp
+    position = "NET EXPORTER" if net > 0 else "NET IMPORTER"
 
-    print(f"Annual Imports:  {total_imp:>12,.0f} MWh")
-    print(f"Annual Exports:  {total_exp:>12,.0f} MWh")
-    print(f"Net Position:    {net:>12,.0f} MWh  ({position})")
+    print(f"Annual Imports: {total_imp:>12,.0f} MWh")
+    print(f"Annual Exports: {total_exp:>12,.0f} MWh")
+    print(f"Net Position: {net:>12,.0f} MWh  ({position})")
     print()
     print(df[["Total_Imp", "Total_Exp", "Net_Export", "Ontario_Demand"]].describe().round(1))
     print("=" * 50)
