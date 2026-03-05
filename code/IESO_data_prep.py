@@ -4,18 +4,11 @@ ieso_data_prep.py
 Loads, cleans, and merges the two IESO datasets:
   - datasets/raw/PUB_IntertieScheduleFlowYear_2025.csv
   - datasets/raw/PUB_Demand_2025.csv
-
-Run from the repo root:
-    python code/ieso_data_prep.py
-
-Returns a merged hourly DataFrame saved to:
-    datasets/merged_2025.csv
 """
 
 import pandas as pd
 import os
 
-# ── Paths (relative to repo root) ──────────────────────────────────────────
 INTERTIE_PATH = "datasets/raw/PUB_IntertieScheduleFlowYear_2025.csv"
 DEMAND_PATH   = "datasets/raw/PUB_Demand_2025.csv"
 OUTPUT_PATH   = "datasets/processed/merged_2025.csv"
@@ -34,15 +27,12 @@ def load_intertie(path: str) -> pd.DataFrame:
         "Flow.14": "Total_Flow",
     })
 
-    # Parse date and add time features
     df["Date"] = pd.to_datetime(df["Date"])
     df["Hour"] = df["Hour"].astype(int)
     df["Month"] = df["Date"].dt.month
     df["Month_Name"] = df["Date"].dt.strftime("%b")
     df["Week"] = df["Date"].dt.isocalendar().week.astype(int)
     df["DayOfWeek"] = df["Date"].dt.day_name()
-
-    # Net export: positive = Ontario exporting, negative = Ontario importing
     df["Net_Export"] = df["Total_Exp"] - df["Total_Imp"]
 
     keep = ["Date", "Hour", "Month", "Month_Name", "Week", "DayOfWeek",
