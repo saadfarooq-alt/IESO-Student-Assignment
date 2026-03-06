@@ -17,7 +17,7 @@ DEMAND_PATH   = "datasets/raw/PUB_Demand_2025.csv"
 OUTPUT_PATH   = "datasets/processed/merged_2025.csv"
 
 
-def load_intertie(path: str) -> pd.DataFrame:
+def load_intertie(path: str):
     """
     Load the Yearly Intertie Schedule and Flow Report.
     """
@@ -44,7 +44,7 @@ def load_intertie(path: str) -> pd.DataFrame:
     return df[keep]
 
 
-def load_demand(path: str) -> pd.DataFrame:
+def load_demand(path: str):
     """
     Load the Hourly Demand Report.
     """
@@ -61,7 +61,7 @@ def load_demand(path: str) -> pd.DataFrame:
     return df[["Date", "Hour", "Ontario_Demand", "Market_Demand"]]
 
 
-def merge_datasets(intertie: pd.DataFrame, demand: pd.DataFrame) -> pd.DataFrame:
+def merge_datasets(intertie: pd.DataFrame, demand: pd.DataFrame):
     """
     Merge intertie and demand on Date + Hour.
     """
@@ -69,7 +69,7 @@ def merge_datasets(intertie: pd.DataFrame, demand: pd.DataFrame) -> pd.DataFrame
     return df
 
 
-def summarize(df: pd.DataFrame) -> None:
+def summarize(df: pd.DataFrame):
     """
     Print a summary of the data on an per hour basis.
     """
